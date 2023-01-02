@@ -1,0 +1,19 @@
+{
+  "name": "support_hs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@hubspot/api-client": "^8.3.2",
+    "axios": "^1.2.2"
+  },
+  "devDependencies": {
+    "jest": "^29.3.1"
+  }
+}
