@@ -40,6 +40,8 @@ exports.main = async (event, callback) => {
   });
 };
 
+// Functions used in the main function //
+
 function getSimilarityStr(similarTickets, portalId) {
   let str = "<ul>";
   if (similarTickets.length > 3) {
@@ -166,7 +168,7 @@ async function searchTicketsWithEmbeddings() {
     const apiResponse = await hubspotClient.crm.tickets.searchApi.doSearch(
       data
     );
-    return apiResponse.results;
+    return apiResponse.body.results || apiResponse.results;
   } catch (e) {
     e.message === "HTTP request failed"
       ? console.error(JSON.stringify(e.response, null, 2))
