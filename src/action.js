@@ -18,7 +18,10 @@ exports.main = async (event, callback) => {
   const ticketEmbeddings = await getTicketEmbeddings(subject, content);
 
   // we get the tickets that are most similar to the new ticket
-  const similarTickets = await getSimilarTickets(ticketEmbeddings);
+  const similarTickets = await getSimilarTickets(
+    ticketEmbeddings,
+    hs_ticket_id
+  );
 
   let newTicketOwner;
   if (!hubspot_owner_id) {
@@ -82,9 +85,12 @@ async function getAIEmbedding(text) {
   }
 }
 
-async function getSimilarTickets(embeddings) {
+async function getSimilarTickets(embeddings, excludeTicketId) {
   // we get the tickets that have similarity score with the new ticket
-  const ticketsWithSimilarity = await getTicketsWithSimilarity(embeddings);
+  const ticketsWithSimilarity = await getTicketsWithSimilarity(
+    embeddings,
+    excludeTicketId
+  );
 
   // sort the tickets by similarity. The most similar ticket will be at the first index
   return ticketsWithSimilarity.sort((a, b) => b.similarity - a.similarity);
@@ -139,7 +145,7 @@ async function updateTicket(
   }
 }
 
-async function searchTicketsWithEmbeddings() {
+async function searchTicketsWithEmbeddings(excludeTicketId) {
   const data = {
     limit: 100,
     properties: [
@@ -164,6 +170,15 @@ async function searchTicketsWithEmbeddings() {
       }
     ]
   };
+
+  if (excludeTicketId) {
+    data.filterGroups[0].filters.push({
+      propertyName: "hs_object_id",
+      operator: "NEQ",
+      value: excludeTicketId
+    });
+  }
+
   try {
     const apiResponse = await hubspotClient.crm.tickets.searchApi.doSearch(
       data
@@ -176,8 +191,8 @@ async function searchTicketsWithEmbeddings() {
   }
 }
 
-async function getTicketsWithSimilarity(embeddings) {
-  const searchResults = await searchTicketsWithEmbeddings();
+async function getTicketsWithSimilarity(embeddings, excludeTicketId) {
+  const searchResults = await searchTicketsWithEmbeddings(excludeTicketId);
 
   const similarTickets = searchResults.map(ticket => {
     const ticketEmbeddings = JSON.parse(ticket.properties.ticket_ai_embeddings);
