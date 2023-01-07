@@ -15,8 +15,6 @@ axios.post = jest.fn().mockImplementation((url, postData, options) => {
     });
   }
 
-  console.log({ events });
-
   const e = events.find(ev => {
     return (
       postData.input ==

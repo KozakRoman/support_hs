@@ -183,11 +183,13 @@ async function searchTicketsWithEmbeddings(excludeTicketId) {
     const apiResponse = await hubspotClient.crm.tickets.searchApi.doSearch(
       data
     );
-    return apiResponse.body.results || apiResponse.results;
+
+    return apiResponse?.body?.results || apiResponse?.results || [];
   } catch (e) {
     e.message === "HTTP request failed"
       ? console.error(JSON.stringify(e.response, null, 2))
       : console.error(e);
+    return [];
   }
 }
 
